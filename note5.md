@@ -77,11 +77,13 @@ user_david = User(username='david', role=user_role)
 
 让Flask-Script的shell命令自动导入特定的对象
 
+使用 app.shell_context_processor 装饰器创建并注册
+一个 shell 上下文处理器
+
 ````python
-from flask.ext.script import Shell
+@app.shell_context_processor
 def make_shell_context():
-    return dict(app=app, db=db, User=User...)
-manage.add_command("shell", Shell(make_context=make_shell_context))
+	return dict(db=db, User=User, Role=Role)
 ````
 
 **flask-migrate实现数据库迁移**

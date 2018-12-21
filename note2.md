@@ -34,9 +34,11 @@ def user(name):
 
 **启动服务器**
 
+Flask 应用自带 Web 开发服务器，通过 flask run 命令启动。这个命令在 FLASK_APP 环境变量指定的 Python 脚本中寻找应用实例
+
 ````python
-if __name__ == '__main__':
-	app.run(debug=True)
+>>>export FLASK_APP=hello.py
+>>>flask run
 ````
 
 **程序和请求上下文**
