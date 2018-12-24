@@ -42,6 +42,23 @@ class User(db.Model, UserMixin):
         db.session.add(self)
         return True
 
+    def generate_reset_password_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset':self.id}).decode('utf-8')
+
+    @staticmethod
+    def password_reset(token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data =s.loads(token.encode('utf-8'))
+        except:
+            return False
+        user = User.query.get(data.get('reset'))
+        if not user:
+            return False
+        user.password = new_password
+        return True
+
     @property
     def password(self):
         raise AttributeError('不可读出密码')

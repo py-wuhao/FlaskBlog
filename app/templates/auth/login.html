@@ -1,17 +1,23 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block title %}
-Blog Login
+    Blog Login
 {% endblock %}
 
 {% block page_content %}
-<div class="page_header">
-<h1>Login</h1>
-<div class="col-md-4"></div>
-{{ wtf.quick_form(form) }}
-<p>
-    New user?
-    <a href="{{ url_for('auth.register') }}">点击注册</a>
-</p>
-</div>
+    <div class="page_header">
+        <h1>Login</h1>
+    </div>
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+
+        <br>
+        <p>
+            忘记密码？ <a href="{{ url_for('auth.reset_password_request') }}">重置</a>
+        </p>
+        <p>
+            New user?
+            <a href="{{ url_for('auth.register') }}">注册</a>
+        </p>
+    </div>
 {% endblock %}
