@@ -5,7 +5,7 @@ from app.email import send_email
 from app.models import User
 from . import auth
 from flask import render_template, request, url_for, redirect, flash
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -16,9 +16,9 @@ def login():
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
             next = request.args.get('next')
-        if next is None or next.startswith('/'):
-            next = url_for('main.index')
-        return redirect(next)
+            if next is None or next.startswith('/'):
+                next = url_for('main.index')
+            return redirect(next)
         flash('无效的用户名或密码')
     return render_template('auth/login.html', form=form)
 
@@ -61,7 +61,7 @@ def confirm(token):
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated \
-            and not current_user.confirmed  \
+            and not current_user.confirmed \
             and request.blueprint != 'auth' \
             and request.endpoint != 'static':
         return redirect(url_for('auth.unconfirmed'))
@@ -81,3 +81,19 @@ def resend_confirmation():
     send_email(current_user.send_email, 'Confirm your Account', 'auth/email/confirm', user=current_user, token=token)
     flash('验证邮件已发送')
     return redirect(url_for('main.index'))
+
+
+@auth.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        old_password = form.old_password.data
+        if current_user.verify_password(old_password):
+            current_user.password = form.password.data
+            db.session.commit()
+            flash('密码修改成功')
+            return redirect(url_for('main.index'))
+        else:
+            flash('密码修改失败')
+    return render_template('auth/change_password.html', form=form)
