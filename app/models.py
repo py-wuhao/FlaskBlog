@@ -44,13 +44,13 @@ class User(db.Model, UserMixin):
 
     def generate_reset_password_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset':self.id}).decode('utf-8')
+        return s.dumps({'reset': self.id}).decode('utf-8')
 
     @staticmethod
     def password_reset(token, new_password):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data =s.loads(token.encode('utf-8'))
+            data = s.loads(token.encode('utf-8'))
         except:
             return False
         user = User.query.get(data.get('reset'))
@@ -58,6 +58,30 @@ class User(db.Model, UserMixin):
             return False
         user.password = new_password
         return True
+
+    def generate_email_token(self, email, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'user_id': self.id, 'new_email': email}).decode('utf-8')
+
+    def change_email(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+
+        if self.id != data.get('user_id'):
+            return False
+
+        new_email = data.get('new_email')
+        if new_email is None:
+            return False
+        else:
+            if User.query.filter_by(email=new_email).first():
+                return False
+            else:
+                self.email = new_email
+                return True
 
     @property
     def password(self):

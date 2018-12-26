@@ -1,0 +1,4 @@
+Dear {{ user.username }}
+
+点击下面的链接 更换邮箱
+{{ url_for('auth.change_email',token=token,_external=True) }}

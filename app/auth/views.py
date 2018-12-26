@@ -5,7 +5,8 @@ from app.email import send_email
 from app.models import User
 from . import auth
 from flask import render_template, request, url_for, redirect, flash
-from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm, ResetPasswordRequestForm
+from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm, ResetPasswordRequestForm, \
+    ChangeEmailForm
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -128,3 +129,30 @@ def reset_password(token):
         else:
             return redirect(url_for('main.index'))
     return render_template('auth/reset_password.html', form=form)
+
+
+@auth.route('/change_email', methods=['GET', 'POST'])
+@login_required
+def change_email_request():
+    form = ChangeEmailForm()
+    if form.validate_on_submit():
+        if current_user.verify_password(form.password.data):
+            # 邮箱唯一在模型类中约束过
+            email = form.email.data
+            token = current_user.generate_email_token(email)
+            send_email(email, '更换邮箱', 'auth/email/change_email', user=current_user, token=token)
+            flash('更换邮箱验证邮件已发送')
+            return redirect(url_for('main.index'))
+        else:
+            flash('密码错误')
+    return render_template('auth/change_email.html', form=form)
+
+
+@auth.route('/change_email/<token>')
+@login_required
+def change_email(token):
+    if current_user.change_email(token):
+        flash('邮箱更换成功')
+    else:
+        flash('链接已失效，邮箱更换失败')
+    return redirect(url_for('main.index'))

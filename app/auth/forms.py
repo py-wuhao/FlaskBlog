@@ -45,3 +45,11 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField('新密码', validators=[DataRequired(), EqualTo('password2', message='两次密码不一致')])
     password2 = PasswordField('确认密码', validators=[DataRequired()])
     submit = SubmitField('确认')
+
+
+class ChangeEmailForm(FlaskForm):
+    email = StringField('新邮箱', validators=[DataRequired(), Length(1, 64), Email()])
+    password = PasswordField('密码', validators=[DataRequired()])
+    submit = SubmitField('提交')
+
+# class change_email()
