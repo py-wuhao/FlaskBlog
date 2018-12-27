@@ -1,10 +1,10 @@
 from flask_login import login_user, login_required, logout_user, current_user
 
 from app import db
-from app.email import send_email
+from celery_tasks.email import tasks as tasks_email
 from app.models import User
 from . import auth
-from flask import render_template, request, url_for, redirect, flash
+from flask import render_template, request, url_for, redirect, flash, current_app
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, ResetPasswordForm, ResetPasswordRequestForm, \
     ChangeEmailForm
 
@@ -40,7 +40,11 @@ def register():
         db.session.add(user)
         db.session.commit()
         token = user.generate_confirmed_token()
-        send_email(user.email, 'Confirm your accout', 'auth/email/confirm', user=user, token=token)
+        username = user.username
+        url = url_for('auth.confirm', token=token, _external=True)
+        tasks_email.send_email.delay(user.email, '邮箱激活', 'confirm', url=url, username=username)
+
+
         flash('注册成功，邮箱验证已发送')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
@@ -79,7 +83,10 @@ def unconfirmed():
 @login_required
 def resend_confirmation():
     token = current_user.genetate_confirmation_token()
-    send_email(current_user.send_email, 'Confirm your Account', 'auth/email/confirm', user=current_user, token=token)
+    username = current_user.username
+    url = url_for('auth.confirm', token=token, _external=True)
+    tasks_email.send_email.delay(current_user.email, 'Confirm your Account', 'confirm', url=url, username=username)
+
     flash('验证邮件已发送')
     return redirect(url_for('main.index'))
 
@@ -111,7 +118,10 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             token = user.generate_reset_password_token()
-            send_email(user.email, '重置密码', 'auth/email/rest_password', user=user, token=token)
+            username = user.username
+            url = url_for('auth.reset_password', token=token, _external=True)
+            tasks_email.send_email.delay(user.email, '重置密码', 'rest_password', url=url, username=username)
+
             flash('重置密码邮件已发送')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
@@ -140,7 +150,10 @@ def change_email_request():
             # 邮箱唯一在模型类中约束过
             email = form.email.data
             token = current_user.generate_email_token(email)
-            send_email(email, '更换邮箱', 'auth/email/change_email', user=current_user, token=token)
+            # send_email(email, '更换邮箱', 'auth/email/change_email', user=current_user, token=token)
+            username = current_user.username
+            url = url_for('auth.change_email', token=token, _external=True)
+            tasks_email.send_email.delay(email, '更换邮箱', 'change_email', url=url, username=username)
             flash('更换邮箱验证邮件已发送')
             return redirect(url_for('main.index'))
         else:
