@@ -65,11 +65,12 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.blueprint != 'auth' \
-            and request.endpoint != 'static':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed \
+                and request.blueprint != 'auth' \
+                and request.endpoint != 'static':
+            return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/unconfirmed')
@@ -82,7 +83,7 @@ def unconfirmed():
 @auth.route('/confirm')
 @login_required
 def resend_confirmation():
-    token = current_user.genetate_confirmation_token()
+    token = current_user.generate_confirmed_token()
     username = current_user.username
     url = url_for('auth.confirm', token=token, _external=True)
     tasks_email.send_email.delay(current_user.email, 'Confirm your Account', 'confirm', url=url, username=username)

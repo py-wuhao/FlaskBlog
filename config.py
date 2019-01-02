@@ -7,7 +7,7 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'abcdefg'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-
+    ADMIN_EMAIL = '15392746632@qq.com'
     @staticmethod
     def init_app(app):
         pass

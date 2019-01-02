@@ -1,11 +1,47 @@
+
 {% extends "base.html" %}
 {% block title %}
-Blog
+    Blog-{{ user.username }}
 {% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-<h1>hello,{{ name }}</h1>
+    <img style="position: absolute;min-height: 260px; margin-left: 280px;"
+         src='http://q1.qlogo.cn/g?b=qq&nk={{ current_user.qq_account }}&s=640' alt="">
+    <h1>hello,{{ user.username }}</h1>
+    {% if user.name or user.location %}
+        <p>
+            {% if user.name %}
+                {{ user.name }}
+            {% endif %}
+            {% if user.location %}
+                来自：
+                <a href="http://map.baidu.com/?newmap=1&s=s&wd={{ user.location }}&c=2403&from=alamap&tpl=mapcity">{{ user.location }}</a>
+            {% endif %}
+        </p>
+
+    {% endif %}
+    {% if current_user.is_administrator() %}
+        <p>
+            <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+        </p>
+    {% endif %}
+    {% if user.about_me %}
+        <p>
+            {{ user.about_me }}
+        </p>
+    {% endif %}
+    <p>
+        加入时间: {{ moment(user.member_since).format('L') }}
+        最后访问时间: {{ moment(user.last_seen).fromNow() }}
+    </p>
+    {% if user==current_user %}
+        <a class="btn btn-default" href="{{ url_for('main.edit_profile') }}">编辑个人资料</a>
+    {% endif %}
+    {% if current_user.is_administrator() %}
+        <a class="btn btn-default" href="{{ url_for('main.edit_profile_admin',id=user.id) }}">编辑资料[Admin]</a>
+
+    {% endif %}
 </div>
 {% endblock %}
 
