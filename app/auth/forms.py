@@ -21,11 +21,11 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field).first():
+        if User.query.filter_by(email=field.data).first():
             raise ValidationError('邮箱已注册')
 
     def validate_usernaem(self, field):
-        if User.query.filter_by(username=field).first():
+        if User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已存在')
 
 

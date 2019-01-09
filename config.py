@@ -19,7 +19,7 @@ class Config(object):
 class DevelopmentConfig(Config):
     print('dev')
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'mysql://root:mysql@127.0.0.1:3306/blog'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'mysql+pymysql://root:mysql@127.0.0.1:3306/blog'
 
 
 class TestingConfig(Config):
