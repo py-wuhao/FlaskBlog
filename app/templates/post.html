@@ -1,13 +1,22 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
-{% block title %}博客-文章{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+{% endblock %}
+{% block title %}Flasky - Post{% endblock %}
+
 {% block page_content %}
     {% include '_posts.html' %}
-    <h4 id="comments">评论</h4>
+    <h4 id="comments">Comments</h4>
     {% if current_user.can(Permission.COMMENT) %}
-        <div class="comment-form">
-            {{ wtf.quick_form(form) }}
+        <div>
+            <form action="" method="post">
+                {{ form.csrf_token }}
+                {{ form.body(class="ckeditor") }}
+                <button type="submit" class="btn btn-success">提交</button>
+            </form>
         </div>
     {% endif %}
     {% include '_comments.html' %}
@@ -17,3 +26,4 @@
         </div>
     {% endif %}
 {% endblock %}
+

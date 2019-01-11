@@ -15,20 +15,21 @@ class Config(object):
     def init_app(app):
         pass
 
-# 'mysql://root:mysql@127.0.0.1:3306/FlaskBlog'
+
+# 'mysql://root:mysql@106.12.104.43:3306/FlaskBlog'
 class DevelopmentConfig(Config):
     print('dev')
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'mysql+pymysql://root:mysql@127.0.0.1:3306/blog'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or 'mysql+pymysql://root:mysql@106.12.104.43:3306/blog'
 
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'mysql://root:mysql@127.0.0.1:3306/blog'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'mysql://root:mysql@106.12.104.43:3306/blog'
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql://root:mysql@127.0.0.1:3306/blog'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql://root:mysql@106.12.104.43:3306/blog'
 
 
 config = {
